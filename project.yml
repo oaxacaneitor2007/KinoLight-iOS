@@ -21,7 +21,6 @@ targets:
         type: folder
     settings:
       base:
-        # Cambia esto por tu propio identificador al firmar con tu cuenta de Apple.
         PRODUCT_BUNDLE_IDENTIFIER: app.kino.demo
         PRODUCT_NAME: KinoLight
         TARGETED_DEVICE_FAMILY: "1,2"
