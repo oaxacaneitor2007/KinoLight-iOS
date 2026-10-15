@@ -1,0 +1,45 @@
+name: KinoLight
+options:
+  bundleIdPrefix: app.kino
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.3"
+    CURRENT_PROJECT_VERSION: "793"
+targets:
+  KinoLight:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: Resources/home.json
+      - path: Resources/Assets.xcassets
+      - path: Resources/posters
+        type: folder
+    settings:
+      base:
+        # Cambia esto por tu propio identificador al firmar con tu cuenta de Apple.
+        PRODUCT_BUNDLE_IDENTIFIER: app.kino.demo
+        PRODUCT_NAME: KinoLight
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: NO
+    info:
+      path: Config/Info.plist
+      properties:
+        CFBundleDisplayName: Kino Tv
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
