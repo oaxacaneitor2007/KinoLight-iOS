@@ -1,0 +1,80 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: |
+          xcodegen --version
+          xcodegen generate
+          ls -la
+
+      - name: Build (unsigned, iphoneos)
+        run: |
+          set -o pipefail
+          xcodebuild -version
+          xcodebuild \
+            -project KinoTV.xcodeproj \
+            -scheme KinoTV \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee build.log
+
+      - name: Package IPA
+        run: |
+          APP_PATH=$(find build/Build/Products -maxdepth 2 -name 'KinoTV.app' -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "No se encontro KinoTV.app"
+            find build/Build/Products -maxdepth 3
+            exit 1
+          fi
+          rm -rf Payload KinoTV.ipa
+          mkdir Payload
+          cp -R "$APP_PATH" Payload/
+          zip -qry KinoTV.ipa Payload
+          echo "--- contenido del IPA ---"
+          unzip -l KinoTV.ipa | head -n 20
+          unzip -l KinoTV.ipa | grep -q 'Payload/KinoTV.app/KinoTV$'
+          unzip -l KinoTV.ipa | grep -q 'Payload/KinoTV.app/Info.plist$'
+          ls -lh KinoTV.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: KinoTV-ipa
+          path: KinoTV.ipa
+          if-no-files-found: error
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
